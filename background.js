@@ -61,11 +61,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return true;
 
     case 'CROP_SCREENSHOT':
+      // Crop the stored full-viewport capture down to the user's selection,
+      // then REPLACE the stored screenshot with the cropped version so the
+      // subsequent upload uses what the user actually selected (not the full
+      // viewport — that was the bug in v1.0.x).
       getPendingScreenshot()
         .then(dataUrl => {
           if (!dataUrl) return sendResponse({ error: 'No screenshot available' });
           return cropScreenshot(dataUrl, message.selection)
-            .then(cropped => sendResponse({ dataUrl: cropped }));
+            .then(async cropped => {
+              await setPendingScreenshot(cropped);
+              sendResponse({ dataUrl: cropped });
+            });
         })
         .catch(err => sendResponse({ error: err.message }));
       return true;
