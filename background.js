@@ -12,15 +12,32 @@ const OAUTH = {
 
 const oauthConfigured = () => OAUTH.clientId.length > 0;
 
-// Temporary screenshot storage (cleared after form submission)
-let pendingScreenshot = null;
+// Temporary screenshot storage.
+//
+// We persist the captured screenshot in chrome.storage.session (not a module
+// variable) because MV3 terminates idle service workers after ~30 s. A module
+// variable would be wiped between capture and upload, leaving the user with
+// "screenshot is no longer available" if they took more than a few seconds to
+// drag a region or fill out the form. session storage survives SW restarts
+// within the same browser session and is cleared automatically on browser exit.
+async function setPendingScreenshot(dataUrl) {
+  await chrome.storage.session.set({ pendingScreenshot: dataUrl });
+}
+async function getPendingScreenshot() {
+  const { pendingScreenshot } = await chrome.storage.session.get('pendingScreenshot');
+  return pendingScreenshot || null;
+}
+async function clearPendingScreenshot() {
+  await chrome.storage.session.remove('pendingScreenshot');
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {
     case 'STORE_SCREENSHOT':
-      pendingScreenshot = message.dataUrl;
-      sendResponse({ ok: true });
-      break;
+      setPendingScreenshot(message.dataUrl)
+        .then(() => sendResponse({ ok: true }))
+        .catch(err => sendResponse({ error: err.message }));
+      return true;
 
     // Reports whether the extension can talk to Linear, and how.
     case 'GET_AUTH_STATE':
@@ -44,12 +61,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return true;
 
     case 'CROP_SCREENSHOT':
-      if (!pendingScreenshot) {
-        sendResponse({ error: 'No screenshot available' });
-        break;
-      }
-      cropScreenshot(pendingScreenshot, message.selection)
-        .then(dataUrl => sendResponse({ dataUrl }))
+      getPendingScreenshot()
+        .then(dataUrl => {
+          if (!dataUrl) return sendResponse({ error: 'No screenshot available' });
+          return cropScreenshot(dataUrl, message.selection)
+            .then(cropped => sendResponse({ dataUrl: cropped }));
+        })
         .catch(err => sendResponse({ error: err.message }));
       return true;
 
@@ -72,8 +89,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'UPLOAD_AND_CREATE_ISSUE':
       withAuth(async auth => {
         try {
-          if (!pendingScreenshot) throw new Error('Screenshot is no longer available — please capture again.');
-          const assetUrl = await uploadImage(pendingScreenshot, auth);
+          const screenshot = await getPendingScreenshot();
+          if (!screenshot) throw new Error('Screenshot is no longer available — please capture again.');
+          const assetUrl = await uploadImage(screenshot, auth);
           const description = buildDescription(assetUrl, message.diagnostics);
           const json = await linearRequest(auth, `
             mutation Create($input: IssueCreateInput!) {
@@ -100,7 +118,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           if (!created?.success || !created.issue) {
             throw new Error('Linear could not create the issue.');
           }
-          pendingScreenshot = null;
+          await clearPendingScreenshot();
           sendResponse({ data: json });
         } catch (err) {
           sendResponse({ error: err.message });
@@ -111,8 +129,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'UPLOAD_AND_ATTACH':
       withAuth(async auth => {
         try {
-          if (!pendingScreenshot) throw new Error('Screenshot is no longer available — please capture again.');
-          const assetUrl = await uploadImage(pendingScreenshot, auth);
+          const screenshot = await getPendingScreenshot();
+          if (!screenshot) throw new Error('Screenshot is no longer available — please capture again.');
+          const assetUrl = await uploadImage(screenshot, auth);
           const body = buildDescription(assetUrl, message.diagnostics);
           const json = await linearRequest(auth, `
             mutation Comment($input: CommentCreateInput!) {
@@ -125,7 +144,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           if (!json?.data?.commentCreate?.success) {
             throw new Error('Linear could not attach the screenshot.');
           }
-          pendingScreenshot = null;
+          await clearPendingScreenshot();
           sendResponse({ data: json });
         } catch (err) {
           sendResponse({ error: err.message });
