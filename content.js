@@ -420,6 +420,27 @@ if (window.__linearScreenshotLoaded) {
           font-size: 12px; color: #9ca3af;
         }
 
+        /* "Submit another" toggle, applies to both tabs */
+        .form-meta {
+          border-top: 1px solid #f0f0f0;
+          padding-top: 12px;
+          margin-top: 4px;
+        }
+        .meta-checkbox {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12px;
+          color: #6b7280;
+          cursor: pointer;
+          user-select: none;
+        }
+        .meta-checkbox input {
+          width: 14px; height: 14px;
+          cursor: pointer;
+          accent-color: #5B5BD6;
+        }
+
         /* Footer */
         .modal-footer {
           display: flex; align-items: center; justify-content: space-between;
@@ -570,6 +591,14 @@ if (window.__linearScreenshotLoaded) {
                   <div class="search-results" id="search-results" style="display:none"></div>
                   <div id="selected-issue-label" style="font-size:12px;color:#5B5BD6;display:none"></div>
                 </div>
+              </div>
+
+              <!-- Submit-another toggle (applies to both tabs) -->
+              <div class="form-meta">
+                <label class="meta-checkbox" title="After sending, capture another region without leaving the page">
+                  <input type="checkbox" id="submit-another" />
+                  <span>Submit another after this one</span>
+                </label>
               </div>
             </div>
           </div>
@@ -733,6 +762,8 @@ if (window.__linearScreenshotLoaded) {
       setFooterStatus('');
       setSubmitLoading(true);
 
+      const submitAnother = shadow.getElementById('submit-another')?.checked || false;
+
       try {
         if (tab === 'create') {
           const title = shadow.getElementById('issue-title').value.trim();
@@ -756,7 +787,7 @@ if (window.__linearScreenshotLoaded) {
 
           const issue = result.data?.data?.issueCreate?.issue;
           const where = stateId ? ' in Triage' : '';
-          showSuccess(issue?.url, issue ? `${issue.identifier}: ${issue.title}${where}` : `Issue created${where}`);
+          showSuccess(issue?.url, issue ? `${issue.identifier}: ${issue.title}${where}` : `Issue created${where}`, submitAnother);
 
         } else {
           if (!selectedIssueId) {
@@ -772,7 +803,7 @@ if (window.__linearScreenshotLoaded) {
 
           if (result.error) throw new Error(result.error);
 
-          showSuccess(null, 'Screenshot attached as a comment');
+          showSuccess(null, 'Screenshot attached as a comment', submitAnother);
         }
       } catch (err) {
         setFooterStatus(err.message, 'error');
@@ -780,7 +811,7 @@ if (window.__linearScreenshotLoaded) {
       }
     }
 
-    function showSuccess(url, label) {
+    function showSuccess(url, label, offerAnother = false) {
       const formPane = shadow.getElementById('form-pane');
       formPane.innerHTML = `
         <div class="success-view">
@@ -805,8 +836,36 @@ if (window.__linearScreenshotLoaded) {
       footer.innerHTML = `
         <span class="footer-status success">Done!</span>
         <button class="btn btn-secondary" id="done-btn">Close</button>
+        ${offerAnother ? `
+          <button class="btn btn-primary" id="another-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9V6a2 2 0 0 1 2-2h2"/><path d="M15 4h2a2 2 0 0 1 2 2v3"/>
+              <path d="M21 15v2a2 2 0 0 1-2 2h-2"/><path d="M9 20H7a2 2 0 0 1-2-2v-2"/>
+            </svg>
+            Submit Another
+          </button>` : ''}
       `;
       shadow.getElementById('done-btn').addEventListener('click', destroyAll);
+      shadow.getElementById('another-btn')?.addEventListener('click', restartCapture);
+    }
+
+    // Tears down the current modal and starts a fresh capture on the same tab.
+    // The background worker re-captures the visible tab (the activeTab grant
+    // from the original toolbar click is still valid), then we mount the
+    // selection overlay again without involving the popup.
+    async function restartCapture() {
+      const btn = shadow.getElementById('another-btn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Capturing…'; }
+      try {
+        const res = await chrome.runtime.sendMessage({ type: 'CAPTURE_VISIBLE_TAB' });
+        if (res?.error) throw new Error(res.error);
+        destroyAll();
+        mountSelectionOverlay();
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Another'; }
+        const fs = shadow.getElementById('footer-status');
+        if (fs) { fs.textContent = err.message; fs.className = 'footer-status error'; }
+      }
     }
   }
 

@@ -60,6 +60,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .catch(err => sendResponse({ error: err.message }));
       return true;
 
+    // Re-captures the visible tab and stashes it — used by the "Submit Another"
+    // flow so a follow-up capture doesn't require another toolbar click. Relies
+    // on the activeTab grant that's still valid from the original popup click.
+    case 'CAPTURE_VISIBLE_TAB':
+      chrome.tabs.captureVisibleTab(sender.tab?.windowId, { format: 'png' }, async (dataUrl) => {
+        if (chrome.runtime.lastError) {
+          sendResponse({ error: chrome.runtime.lastError.message });
+          return;
+        }
+        try {
+          await setPendingScreenshot(dataUrl);
+          sendResponse({ ok: true });
+        } catch (err) {
+          sendResponse({ error: err.message });
+        }
+      });
+      return true;
+
     case 'CROP_SCREENSHOT':
       // Crop the stored full-viewport capture down to the user's selection,
       // then REPLACE the stored screenshot with the cropped version so the
