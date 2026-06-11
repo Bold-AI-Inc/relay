@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Linear Screenshot",
+  "version": "1.0.0",
+  "description": "Capture any area of a webpage and send it to Linear as a new issue or attachment",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs",
+    "identity"
+  ],
+  "host_permissions": [
+    "https://*.linear.app/*",
+    "https://*.amazonaws.com/*",
+    "https://*.googleapis.com/*",
+    "https://*.linearassets.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Linear Screenshot",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "options.html"
+}
