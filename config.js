@@ -13,7 +13,7 @@
 //
 // NOTE: A client_id is NOT a secret — it is safe to ship in the extension.
 //       Linear uses PKCE, so no client_secret is required for this app.
-self.LINEAR_OAUTH_CLIENT_ID = '';
+self.LINEAR_OAUTH_CLIENT_ID = '294388116880358bc4bc7db0c09cf212';
 
 // Scopes requested during OAuth. `read` is needed to list teams/projects and to
 // search issues; `write` covers creating issues, comments and uploading files.
