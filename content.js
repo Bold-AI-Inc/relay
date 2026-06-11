@@ -565,10 +565,10 @@ if (window.__linearScreenshotLoaded) {
                       <label class="label">Priority</label>
                       <select id="issue-priority">
                         <option value="0">No priority</option>
+                        <option value="1">Urgent</option>
                         <option value="2">High</option>
                         <option value="3" selected>Medium</option>
                         <option value="4">Low</option>
-                        <option value="1">Urgent</option>
                       </select>
                     </div>
                   </div>
