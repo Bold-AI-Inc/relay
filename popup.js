@@ -47,17 +47,22 @@ async function init() {
           }
         }`
       });
-      const projNodes = projRes.data?.data?.projects?.nodes || [];
-      const byTeam = {};
-      for (const p of projNodes) {
-        if (p.state === 'completed' || p.state === 'canceled') continue;
-        for (const tm of (p.teams?.nodes || [])) {
-          (byTeam[tm.id] = byTeam[tm.id] || []).push({ id: p.id, name: p.name });
+      if (projRes?.error) {
+        console.warn('[Linear Screenshot] projects query failed:', projRes.error);
+      } else {
+        const projNodes = projRes.data?.data?.projects?.nodes || [];
+        console.debug('[Linear Screenshot] fetched', projNodes.length, 'projects');
+        const byTeam = {};
+        for (const p of projNodes) {
+          if (p.state === 'completed' || p.state === 'canceled') continue;
+          for (const tm of (p.teams?.nodes || [])) {
+            (byTeam[tm.id] = byTeam[tm.id] || []).push({ id: p.id, name: p.name });
+          }
         }
+        loadedTeams.forEach(t => { t.projects = byTeam[t.id] || []; });
       }
-      loadedTeams.forEach(t => { t.projects = byTeam[t.id] || []; });
-    } catch {
-      /* projects are optional — ignore */
+    } catch (e) {
+      console.warn('[Linear Screenshot] projects query threw:', e);
     }
 
     setStatus(loadedTeams.length ? '' : 'No teams found');

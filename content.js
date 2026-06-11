@@ -420,6 +420,29 @@ if (window.__linearScreenshotLoaded) {
           font-size: 12px; color: #9ca3af;
         }
 
+        /* Refresh-data link next to the Project label */
+        .label-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .refresh-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #5B5BD6;
+          font-size: 11px;
+          font-weight: 500;
+          padding: 0;
+          font-family: inherit;
+        }
+        .refresh-btn:hover { text-decoration: underline; }
+        .refresh-btn:disabled { opacity: 0.6; cursor: wait; text-decoration: none; }
+        .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+
         /* "Submit another" toggle, applies to both tabs */
         .form-meta {
           border-top: 1px solid #f0f0f0;
@@ -573,7 +596,16 @@ if (window.__linearScreenshotLoaded) {
                     </div>
                   </div>
                   <div class="field">
-                    <label class="label">Project <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
+                    <div class="label-row">
+                      <label class="label">Project <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
+                      <button type="button" class="refresh-btn" id="refresh-data" title="Refresh teams and projects from Linear">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="23 4 23 10 17 10"/>
+                          <path d="M20.49 9A9 9 0 1 0 5.64 18.36L1 14"/>
+                        </svg>
+                        Refresh
+                      </button>
+                    </div>
                     <select id="issue-project">
                       <option value="">No project</option>
                     </select>
@@ -637,6 +669,97 @@ if (window.__linearScreenshotLoaded) {
 
     populateProjects(teamSelect.value);
     teamSelect.addEventListener('change', () => populateProjects(teamSelect.value));
+
+    // ── Refresh teams + projects on demand ────────────────────────────────
+    // The popup loads teams/projects at toolbar-click time. If the user added
+    // a team or project in Linear AFTER opening the popup (or if the projects
+    // query silently failed), this lets them pull fresh data without closing
+    // the modal.
+    async function refreshTeamsProjects() {
+      const btn = shadow.getElementById('refresh-data');
+      btn.disabled = true;
+      btn.classList.add('spinning');
+      setFooterStatus('Refreshing…');
+
+      try {
+        const tres = await chrome.runtime.sendMessage({
+          type: 'LINEAR_API',
+          query: `query {
+            teams {
+              nodes {
+                id name key
+                states { nodes { id type } }
+              }
+            }
+          }`
+        });
+        if (tres?.error) throw new Error(tres.error);
+        const tnodes = tres.data?.data?.teams?.nodes || [];
+        const fresh = tnodes.map(t => ({
+          id: t.id, name: t.name, key: t.key,
+          triageStateId: t.states?.nodes?.find(s => s.type === 'triage')?.id || null,
+          projects: []
+        }));
+
+        // Projects: don't fail the whole refresh if this errors — bubble the
+        // reason up to the footer so the user can see why.
+        let projectError = null;
+        try {
+          const pres = await chrome.runtime.sendMessage({
+            type: 'LINEAR_API',
+            query: `query {
+              projects(first: 250) {
+                nodes { id name state teams { nodes { id } } }
+              }
+            }`
+          });
+          if (pres?.error) {
+            projectError = pres.error;
+          } else {
+            const projNodes = pres.data?.data?.projects?.nodes || [];
+            const byTeam = {};
+            for (const p of projNodes) {
+              if (p.state === 'completed' || p.state === 'canceled') continue;
+              for (const tm of (p.teams?.nodes || [])) {
+                (byTeam[tm.id] = byTeam[tm.id] || []).push({ id: p.id, name: p.name });
+              }
+            }
+            fresh.forEach(t => { t.projects = byTeam[t.id] || []; });
+          }
+        } catch (e) {
+          projectError = e.message;
+        }
+
+        teams = fresh;
+
+        // Re-render the Team dropdown, preserving the current selection if it
+        // still exists; then repopulate the Project dropdown for that team.
+        const prevTeamId = teamSelect.value;
+        teamSelect.innerHTML = teams.length
+          ? teams.map(t => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('')
+          : '<option value="">No teams found</option>';
+        if (teams.find(t => t.id === prevTeamId)) teamSelect.value = prevTeamId;
+        populateProjects(teamSelect.value);
+
+        const projCount = teams.reduce((n, t) => n + (t.projects?.length || 0), 0);
+        if (projectError) {
+          setFooterStatus(`Teams refreshed. Projects failed: ${projectError}`, 'error');
+        } else {
+          setFooterStatus(
+            `Refreshed — ${teams.length} team${teams.length !== 1 ? 's' : ''}, ${projCount} project${projCount !== 1 ? 's' : ''}`,
+            'success'
+          );
+          setTimeout(() => setFooterStatus(''), 2500);
+        }
+      } catch (err) {
+        setFooterStatus(`Refresh failed: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('spinning');
+      }
+    }
+
+    shadow.getElementById('refresh-data').addEventListener('click', refreshTeamsProjects);
 
     // ── Tab switching ──────────────────────────────────────────────────────
     let activeTab = 'create';
