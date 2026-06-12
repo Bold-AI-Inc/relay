@@ -5,6 +5,14 @@ All notable changes to **Linear Screenshot** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the version numbers follow [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-06-11
+
+### Added
+- **Assignee selector on the create form.** A new "Assignee (optional)" dropdown
+  lets you assign the issue to a specific workspace member at submission time.
+  Defaults to Unassigned (current behavior). Sits alongside Project in a 2×2
+  grid with Team and Priority. The in-modal **Refresh** also re-pulls users.
+
 ## [1.3.0] — 2026-06-11
 
 ### Added
@@ -101,6 +109,7 @@ Initial release. Submitted to the Chrome Web Store.
   (`*.amazonaws.com`, `*.googleapis.com`, `*.linearassets.com`). No analytics,
   no third-party servers, no remote code.
 
+[1.4.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.4.0
 [1.3.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.3.0
 [1.2.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.2.0
 [1.1.1]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.1.1

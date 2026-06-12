@@ -144,7 +144,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               // Routes the issue into the team's Triage queue when provided
               ...(message.stateId ? { stateId: message.stateId } : {}),
               // Optional project association (scoped to the selected team)
-              ...(message.projectId ? { projectId: message.projectId } : {})
+              ...(message.projectId ? { projectId: message.projectId } : {}),
+              // Optional assignee (any active workspace user)
+              ...(message.assigneeId ? { assigneeId: message.assigneeId } : {})
             }
           });
           const created = json?.data?.issueCreate;

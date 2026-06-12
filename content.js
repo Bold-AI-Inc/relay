@@ -10,6 +10,7 @@ if (window.__linearScreenshotLoaded) {
   let isSelecting = false;
   let startX = 0, startY = 0;
   let teams = [];
+  let users = [];
   let pageTitle = '';
   let pageUrl = '';
   let croppedDataUrl = null;
@@ -22,6 +23,7 @@ if (window.__linearScreenshotLoaded) {
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'START_CAPTURE') {
       teams = msg.teams || [];
+      users = msg.users || [];
       pageTitle = msg.pageTitle || document.title;
       pageUrl = msg.pageUrl || location.href;
       captureMode = msg.mode === 'full' ? 'full' : 'area';
@@ -617,20 +619,29 @@ if (window.__linearScreenshotLoaded) {
                       </select>
                     </div>
                   </div>
-                  <div class="field">
-                    <div class="label-row">
-                      <label class="label">Project <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
-                      <button type="button" class="refresh-btn" id="refresh-data" title="Refresh teams and projects from Linear">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="23 4 23 10 17 10"/>
-                          <path d="M20.49 9A9 9 0 1 0 5.64 18.36L1 14"/>
-                        </svg>
-                        Refresh
-                      </button>
+                  <div class="row">
+                    <div class="field">
+                      <div class="label-row">
+                        <label class="label">Project <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
+                        <button type="button" class="refresh-btn" id="refresh-data" title="Refresh teams, projects and assignees from Linear">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"/>
+                            <path d="M20.49 9A9 9 0 1 0 5.64 18.36L1 14"/>
+                          </svg>
+                          Refresh
+                        </button>
+                      </div>
+                      <select id="issue-project">
+                        <option value="">No project</option>
+                      </select>
                     </div>
-                    <select id="issue-project">
-                      <option value="">No project</option>
-                    </select>
+                    <div class="field">
+                      <label class="label">Assignee <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
+                      <select id="issue-assignee">
+                        <option value="">Unassigned</option>
+                        ${users.map(u => `<option value="${esc(u.id)}">${esc(u.name)}</option>`).join('')}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -723,9 +734,10 @@ if (window.__linearScreenshotLoaded) {
           projects: []
         }));
 
-        // Projects: don't fail the whole refresh if this errors — bubble the
-        // reason up to the footer so the user can see why.
+        // Projects + Users: don't fail the whole refresh if either errors —
+        // bubble the reason up to the footer so the user can see why.
         let projectError = null;
+        let userError = null;
         try {
           const pres = await chrome.runtime.sendMessage({
             type: 'LINEAR_API',
@@ -752,7 +764,39 @@ if (window.__linearScreenshotLoaded) {
           projectError = e.message;
         }
 
+        // Users (workspace members) for the Assignee dropdown.
+        try {
+          const ures = await chrome.runtime.sendMessage({
+            type: 'LINEAR_API',
+            query: `query {
+              users(first: 250, includeDisabled: false) {
+                nodes { id name displayName }
+              }
+            }`
+          });
+          if (ures?.error) {
+            userError = ures.error;
+          } else {
+            const userNodes = ures.data?.data?.users?.nodes || [];
+            users = userNodes
+              .map(u => ({ id: u.id, name: u.displayName || u.name }))
+              .filter(u => u.name)
+              .sort((a, b) => a.name.localeCompare(b.name));
+          }
+        } catch (e) {
+          userError = e.message;
+        }
+
         teams = fresh;
+
+        // Re-render the Assignee dropdown, preserving the current selection.
+        const assigneeSelect = shadow.getElementById('issue-assignee');
+        if (assigneeSelect) {
+          const prevAssignee = assigneeSelect.value;
+          assigneeSelect.innerHTML = '<option value="">Unassigned</option>' +
+            users.map(u => `<option value="${esc(u.id)}">${esc(u.name)}</option>`).join('');
+          if (users.find(u => u.id === prevAssignee)) assigneeSelect.value = prevAssignee;
+        }
 
         // Re-render the Team dropdown, preserving the current selection if it
         // still exists; then repopulate the Project dropdown for that team.
@@ -764,11 +808,14 @@ if (window.__linearScreenshotLoaded) {
         populateProjects(teamSelect.value);
 
         const projCount = teams.reduce((n, t) => n + (t.projects?.length || 0), 0);
-        if (projectError) {
-          setFooterStatus(`Teams refreshed. Projects failed: ${projectError}`, 'error');
+        const errors = [projectError && `projects (${projectError})`, userError && `users (${userError})`]
+          .filter(Boolean)
+          .join(', ');
+        if (errors) {
+          setFooterStatus(`Teams refreshed. Partial failure: ${errors}`, 'error');
         } else {
           setFooterStatus(
-            `Refreshed — ${teams.length} team${teams.length !== 1 ? 's' : ''}, ${projCount} project${projCount !== 1 ? 's' : ''}`,
+            `Refreshed — ${teams.length} team${teams.length !== 1 ? 's' : ''}, ${projCount} project${projCount !== 1 ? 's' : ''}, ${users.length} user${users.length !== 1 ? 's' : ''}`,
             'success'
           );
           setTimeout(() => setFooterStatus(''), 2500);
@@ -922,10 +969,11 @@ if (window.__linearScreenshotLoaded) {
           // Route to the team's triage queue automatically when available
           const stateId = teams.find(t => t.id === teamId)?.triageStateId || null;
           const projectId = shadow.getElementById('issue-project').value || null;
+          const assigneeId = shadow.getElementById('issue-assignee').value || null;
 
           const result = await chrome.runtime.sendMessage({
             type: 'UPLOAD_AND_CREATE_ISSUE',
-            teamId, title, priority, extraDescription, diagnostics, stateId, projectId
+            teamId, title, priority, extraDescription, diagnostics, stateId, projectId, assigneeId
           });
 
           if (result.error) throw new Error(result.error);

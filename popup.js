@@ -1,4 +1,5 @@
 let loadedTeams = [];
+let loadedUsers = [];
 
 async function init() {
   const state = await chrome.runtime.sendMessage({ type: 'GET_AUTH_STATE' });
@@ -65,6 +66,31 @@ async function init() {
       console.warn('[Linear Screenshot] projects query threw:', e);
     }
 
+    // Fetch workspace users for the Assignee dropdown. Same defensive pattern
+    // as projects — a failure here must not block team loading.
+    try {
+      const userRes = await chrome.runtime.sendMessage({
+        type: 'LINEAR_API',
+        query: `query {
+          users(first: 250, includeDisabled: false) {
+            nodes { id name displayName }
+          }
+        }`
+      });
+      if (userRes?.error) {
+        console.warn('[Linear Screenshot] users query failed:', userRes.error);
+      } else {
+        const userNodes = userRes.data?.data?.users?.nodes || [];
+        loadedUsers = userNodes
+          .map(u => ({ id: u.id, name: u.displayName || u.name }))
+          .filter(u => u.name)
+          .sort((a, b) => a.name.localeCompare(b.name));
+        console.debug('[Linear Screenshot] fetched', loadedUsers.length, 'users');
+      }
+    } catch (e) {
+      console.warn('[Linear Screenshot] users query threw:', e);
+    }
+
     setStatus(loadedTeams.length ? '' : 'No teams found');
   } catch (err) {
     setStatus('Could not load teams', true);
@@ -121,6 +147,7 @@ async function startCapture(mode) {
       type: 'START_CAPTURE',
       mode,
       teams: loadedTeams,
+      users: loadedUsers,
       pageTitle: tab.title,
       pageUrl: tab.url
     });
