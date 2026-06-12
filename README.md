@@ -13,6 +13,7 @@ two clicks.
 - 📡 Zero third parties — talks only to Linear.
 
 **Privacy policy:** <https://gist.github.com/pibrah/e1c79df093228b1f880501cd86d132c0>
+**Changelog:** [`CHANGELOG.md`](./CHANGELOG.md)
 
 ---
 

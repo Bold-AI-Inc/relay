@@ -22,6 +22,7 @@ zip -r "$OUT" . \
   -x "*.DS_Store" \
   -x "README.md" \
   -x "PUBLISHING.md" \
+  -x "CHANGELOG.md" \
   -x "build.sh" \
   -x "store/*" \
   -x "icons/icon512.png" \
