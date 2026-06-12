@@ -69,6 +69,20 @@
     .capture-btn:hover:not(:disabled) { background: #4a4ac4; }
     .capture-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
+    .capture-btn-secondary {
+      background: #fff;
+      color: #5B5BD6;
+      border: 1px solid #d1d5db;
+      margin-top: 8px;
+    }
+    .capture-btn-secondary:hover:not(:disabled) {
+      background: #f5f5ff;
+      border-color: #5B5BD6;
+    }
+    .capture-btn-secondary:disabled {
+      background: #f3f4f6; color: #9ca3af; border-color: #e5e7eb;
+    }
+
     .settings-row {
       display: flex;
       align-items: center;
@@ -128,13 +142,20 @@
     </div>
 
     <div id="main-view">
-      <p class="hint">Select an area on the page to capture and send to Linear.</p>
+      <p class="hint">Drag-select a region, or send the whole visible page.</p>
       <button class="capture-btn" id="capture-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9V6a2 2 0 0 1 2-2h2"/><path d="M15 4h2a2 2 0 0 1 2 2v3"/>
           <path d="M21 15v2a2 2 0 0 1-2 2h-2"/><path d="M9 20H7a2 2 0 0 1-2-2v-2"/>
         </svg>
         Capture Area
+      </button>
+      <button class="capture-btn capture-btn-secondary" id="capture-full-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+        </svg>
+        Capture Whole Page
       </button>
       <div class="settings-row">
         <span class="status" id="status"></span>

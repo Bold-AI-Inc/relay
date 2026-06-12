@@ -78,6 +78,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true;
 
+    // Used by the "Capture Whole Page" flow so the content script can show
+    // the un-cropped capture in the form preview without re-cropping.
+    case 'GET_PENDING_SCREENSHOT':
+      getPendingScreenshot()
+        .then(dataUrl => sendResponse({ dataUrl: dataUrl || null }))
+        .catch(err => sendResponse({ error: err.message }));
+      return true;
+
     case 'CROP_SCREENSHOT':
       // Crop the stored full-viewport capture down to the user's selection,
       // then REPLACE the stored screenshot with the cropped version so the

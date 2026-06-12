@@ -85,15 +85,19 @@ document.getElementById('settings-link')?.addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
-document.getElementById('capture-btn')?.addEventListener('click', async () => {
-  const btn = document.getElementById('capture-btn');
-  btn.disabled = true;
-  btn.innerHTML = 'Capturing…';
+// Shared capture flow used by both buttons. `mode` is either 'area' (drag-select
+// overlay) or 'full' (send the visible tab straight to the form).
+async function startCapture(mode) {
+  const buttons = document.querySelectorAll('.capture-btn');
+  buttons.forEach(b => (b.disabled = true));
+  const clicked = mode === 'full' ? document.getElementById('capture-full-btn') : document.getElementById('capture-btn');
+  const originalHTML = clicked.innerHTML;
+  clicked.innerHTML = 'Capturing…';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    // Capture now while the user-gesture activeTab grant is still valid
+    // Capture now while the user-gesture activeTab grant is still valid.
     const dataUrl = await new Promise((resolve, reject) => {
       chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (url) => {
         if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
@@ -101,21 +105,21 @@ document.getElementById('capture-btn')?.addEventListener('click', async () => {
       });
     });
 
-    // Stash screenshot in the background worker's memory
+    // Stash in session storage so the SW can crop / upload it later.
     await chrome.runtime.sendMessage({ type: 'STORE_SCREENSHOT', dataUrl });
 
-    // Inject content script (safe to call multiple times — content script guards itself)
+    // Inject content script (it guards itself against double-injection).
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       files: ['content.js']
     });
 
-    // Brief pause to let the script settle
+    // Brief pause to let the content script's onMessage listener register.
     await new Promise(r => setTimeout(r, 80));
 
-    // Kick off the selection UI
     chrome.tabs.sendMessage(tab.id, {
       type: 'START_CAPTURE',
+      mode,
       teams: loadedTeams,
       pageTitle: tab.title,
       pageUrl: tab.url
@@ -124,14 +128,12 @@ document.getElementById('capture-btn')?.addEventListener('click', async () => {
     window.close();
   } catch (err) {
     setStatus(err.message, true);
-    btn.disabled = false;
-    btn.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9V6a2 2 0 0 1 2-2h2"/><path d="M15 4h2a2 2 0 0 1 2 2v3"/>
-        <path d="M21 15v2a2 2 0 0 1-2 2h-2"/><path d="M9 20H7a2 2 0 0 1-2-2v-2"/>
-      </svg>
-      Capture Area`;
+    buttons.forEach(b => (b.disabled = false));
+    clicked.innerHTML = originalHTML;
   }
-});
+}
+
+document.getElementById('capture-btn')?.addEventListener('click', () => startCapture('area'));
+document.getElementById('capture-full-btn')?.addEventListener('click', () => startCapture('full'));
 
 init();

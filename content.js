@@ -16,6 +16,7 @@ if (window.__linearScreenshotLoaded) {
   let selectedIssueId = null;
   let searchDebounceTimer = null;
   let diagnostics = null;
+  let captureMode = 'area';   // 'area' (drag-select) or 'full' (visible tab)
 
   // ─── Entry point ─────────────────────────────────────────────────────────
   chrome.runtime.onMessage.addListener((msg) => {
@@ -23,10 +24,31 @@ if (window.__linearScreenshotLoaded) {
       teams = msg.teams || [];
       pageTitle = msg.pageTitle || document.title;
       pageUrl = msg.pageUrl || location.href;
+      captureMode = msg.mode === 'full' ? 'full' : 'area';
       destroyAll();
-      mountSelectionOverlay();
+      if (captureMode === 'full') {
+        startFullCapture();
+      } else {
+        mountSelectionOverlay();
+      }
     }
   });
+
+  // ─── "Capture Whole Page" path ────────────────────────────────────────────
+  // Skips the drag-select overlay entirely. The visible tab is already in
+  // session storage; we just pull it out for the preview and open the form.
+  async function startFullCapture() {
+    diagnostics = await collectDiagnostics();
+    const res = await chrome.runtime.sendMessage({ type: 'GET_PENDING_SCREENSHOT' });
+    if (res?.error || !res?.dataUrl) {
+      // Nothing to do without an image. Stay silent — the toolbar UI already
+      // reported any capture error.
+      return;
+    }
+    croppedDataUrl = res.dataUrl;
+    mountHost();
+    mountForm();
+  }
 
   // ─── Cleanup ──────────────────────────────────────────────────────────────
   function destroyAll() {
@@ -983,7 +1005,8 @@ if (window.__linearScreenshotLoaded) {
         const res = await chrome.runtime.sendMessage({ type: 'CAPTURE_VISIBLE_TAB' });
         if (res?.error) throw new Error(res.error);
         destroyAll();
-        mountSelectionOverlay();
+        if (captureMode === 'full') startFullCapture();
+        else mountSelectionOverlay();
       } catch (err) {
         if (btn) { btn.disabled = false; btn.textContent = 'Submit Another'; }
         const fs = shadow.getElementById('footer-status');
