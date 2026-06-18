@@ -5,6 +5,30 @@ All notable changes to **Linear Screenshot** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the version numbers follow [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] — 2026-06-11
+
+### Added
+- **Workflow toggle (Triage / Skip Triage)** on the create form. Default is
+  Triage (current behavior); flipping to Skip Triage omits `stateId` so
+  Linear uses the team's default state (Backlog, etc.) — for teams that
+  prefer issues to land directly in their normal flow.
+- **Page title now travels with the issue.** The page's `<title>` is included
+  as a "Page" row at the top of the environment table in the description, so
+  the recipient sees what page the bug was filed from at a glance.
+
+### Changed
+- **"Title" field renamed to "Issue"** and no longer pre-filled with the page
+  title — the page title was almost always edited away anyway, and is now
+  surfaced in the description table instead.
+- **Assignee dropdown now shows full names** (Linear's `name`) instead of
+  display handles. Hovering an option reveals the `@handle`. Cleaner default,
+  no information lost.
+- **Assignee list segments by project membership.** When a project is
+  selected, members of that project are grouped at the top of the dropdown
+  under "On this project", with the rest of the workspace under
+  "Other workspace members". Falls back to a flat list if the membership
+  query fails or no project is picked.
+
 ## [1.4.0] — 2026-06-11
 
 ### Added
@@ -109,6 +133,7 @@ Initial release. Submitted to the Chrome Web Store.
   (`*.amazonaws.com`, `*.googleapis.com`, `*.linearassets.com`). No analytics,
   no third-party servers, no remote code.
 
+[1.5.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.5.0
 [1.4.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.4.0
 [1.3.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.3.0
 [1.2.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.2.0

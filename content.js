@@ -89,6 +89,7 @@ if (window.__linearScreenshotLoaded) {
     if (!os) os = nav.platform || 'Unknown';        // deprecated but works as fallback
 
     return {
+      page: pageTitle || document.title || '',
       url: location.href,
       browser,
       os,
@@ -444,6 +445,34 @@ if (window.__linearScreenshotLoaded) {
           font-size: 12px; color: #9ca3af;
         }
 
+        /* Segmented control (Triage / Skip Triage) */
+        .seg-control {
+          display: inline-flex;
+          background: #f3f4f6;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 3px;
+          gap: 2px;
+        }
+        .seg-btn {
+          border: none;
+          background: transparent;
+          padding: 6px 14px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #6b7280;
+          cursor: pointer;
+          border-radius: 6px;
+          font-family: inherit;
+          transition: color 0.12s;
+        }
+        .seg-btn.seg-active {
+          background: #fff;
+          color: #5B5BD6;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        .seg-btn:hover:not(.seg-active) { color: #111827; }
+
         /* Refresh-data link next to the Project label */
         .label-row {
           display: flex;
@@ -594,8 +623,8 @@ if (window.__linearScreenshotLoaded) {
               <div id="panel-create">
                 <div style="display:flex;flex-direction:column;gap:14px;">
                   <div class="field">
-                    <label class="label">Title</label>
-                    <input type="text" id="issue-title" placeholder="Issue title" />
+                    <label class="label">Issue</label>
+                    <input type="text" id="issue-title" placeholder="What's the issue?" />
                   </div>
                   <div class="field">
                     <label class="label">Description <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
@@ -639,8 +668,17 @@ if (window.__linearScreenshotLoaded) {
                       <label class="label">Assignee <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
                       <select id="issue-assignee">
                         <option value="">Unassigned</option>
-                        ${users.map(u => `<option value="${esc(u.id)}">${esc(u.name)}</option>`).join('')}
+                        ${users.map(u => `<option value="${esc(u.id)}" title="@${esc(u.handle || u.name)}">${esc(u.name)}</option>`).join('')}
                       </select>
+                    </div>
+                  </div>
+
+                  <!-- Workflow: Triage vs. Skip Triage -->
+                  <div class="field">
+                    <label class="label">Workflow</label>
+                    <div class="seg-control" id="workflow-control">
+                      <button type="button" class="seg-btn seg-active" data-value="triage">Triage</button>
+                      <button type="button" class="seg-btn" data-value="skip">Skip Triage</button>
                     </div>
                   </div>
                 </div>
@@ -686,8 +724,17 @@ if (window.__linearScreenshotLoaded) {
     // Set preview image
     shadow.getElementById('preview-img').src = croppedDataUrl;
 
-    // Pre-fill title with page title
-    shadow.getElementById('issue-title').value = pageTitle;
+    // The "Issue" field stays blank — the page title is included automatically
+    // in the environment table at the bottom of the description, so we don't
+    // need to drop it into a prominent input that the user almost always edits.
+
+    // ── Workflow toggle (Triage / Skip Triage) ─────────────────────────────
+    shadow.querySelectorAll('#workflow-control .seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        shadow.querySelectorAll('#workflow-control .seg-btn').forEach(b => b.classList.remove('seg-active'));
+        btn.classList.add('seg-active');
+      });
+    });
 
     // ── Project picker (scoped to the selected team) ─────────────────────────
     const teamSelect = shadow.getElementById('issue-team');
@@ -701,7 +748,74 @@ if (window.__linearScreenshotLoaded) {
     }
 
     populateProjects(teamSelect.value);
-    teamSelect.addEventListener('change', () => populateProjects(teamSelect.value));
+    teamSelect.addEventListener('change', () => {
+      populateProjects(teamSelect.value);
+      // Reset assignee segmentation: new team likely changes the relevant
+      // project, and the previous project no longer applies.
+      renderAssignees(null);
+    });
+
+    // ── Assignee dropdown: render flat or segmented by project membership ──
+    function assigneeOption(u) {
+      return `<option value="${esc(u.id)}" title="@${esc(u.handle || u.name)}">${esc(u.name)}</option>`;
+    }
+
+    function renderAssignees(memberIds /* Set<string> | null */) {
+      const sel = shadow.getElementById('issue-assignee');
+      if (!sel) return;
+      const prev = sel.value;
+
+      let html = '<option value="">Unassigned</option>';
+      if (memberIds && memberIds.size) {
+        const onProject = users.filter(u => memberIds.has(u.id));
+        const others    = users.filter(u => !memberIds.has(u.id));
+        if (onProject.length) {
+          html += '<optgroup label="On this project">' +
+                  onProject.map(assigneeOption).join('') +
+                  '</optgroup>';
+        }
+        if (others.length) {
+          html += '<optgroup label="Other workspace members">' +
+                  others.map(assigneeOption).join('') +
+                  '</optgroup>';
+        }
+      } else {
+        html += users.map(assigneeOption).join('');
+      }
+      sel.innerHTML = html;
+      if (users.find(u => u.id === prev)) sel.value = prev;
+    }
+
+    // Fetch project membership and re-segment the assignee list. Falls back
+    // to a flat list if the query fails or no project is selected.
+    async function segmentAssigneesByProject(projectId) {
+      if (!projectId) return renderAssignees(null);
+      try {
+        const res = await chrome.runtime.sendMessage({
+          type: 'LINEAR_API',
+          query: `query M($id: String!) {
+            project(id: $id) { members(first: 250) { nodes { id } } }
+          }`,
+          variables: { id: projectId }
+        });
+        if (res?.error) {
+          console.warn('[Linear Screenshot] project members query failed:', res.error);
+          renderAssignees(null);
+          return;
+        }
+        const memberIds = new Set(
+          (res.data?.data?.project?.members?.nodes || []).map(m => m.id)
+        );
+        renderAssignees(memberIds);
+      } catch (e) {
+        console.warn('[Linear Screenshot] project members query threw:', e);
+        renderAssignees(null);
+      }
+    }
+
+    // When the user picks a project, segment the assignee list so members
+    // of that project surface first.
+    projectSelect.addEventListener('change', () => segmentAssigneesByProject(projectSelect.value));
 
     // ── Refresh teams + projects on demand ────────────────────────────────
     // The popup loads teams/projects at toolbar-click time. If the user added
@@ -779,7 +893,11 @@ if (window.__linearScreenshotLoaded) {
           } else {
             const userNodes = ures.data?.data?.users?.nodes || [];
             users = userNodes
-              .map(u => ({ id: u.id, name: u.displayName || u.name }))
+              .map(u => ({
+                id: u.id,
+                name: u.name || u.displayName,
+                handle: u.displayName || u.name
+              }))
               .filter(u => u.name)
               .sort((a, b) => a.name.localeCompare(b.name));
           }
@@ -789,14 +907,10 @@ if (window.__linearScreenshotLoaded) {
 
         teams = fresh;
 
-        // Re-render the Assignee dropdown, preserving the current selection.
-        const assigneeSelect = shadow.getElementById('issue-assignee');
-        if (assigneeSelect) {
-          const prevAssignee = assigneeSelect.value;
-          assigneeSelect.innerHTML = '<option value="">Unassigned</option>' +
-            users.map(u => `<option value="${esc(u.id)}">${esc(u.name)}</option>`).join('');
-          if (users.find(u => u.id === prevAssignee)) assigneeSelect.value = prevAssignee;
-        }
+        // Re-render the Assignee dropdown — segmented by the currently
+        // selected project, if any, so the UX stays consistent after refresh.
+        const projectSelectEl = shadow.getElementById('issue-project');
+        await segmentAssigneesByProject(projectSelectEl?.value || null);
 
         // Re-render the Team dropdown, preserving the current selection if it
         // still exists; then repopulate the Project dropdown for that team.
@@ -966,10 +1080,15 @@ if (window.__linearScreenshotLoaded) {
           if (!title) { setFooterStatus('Please enter a title.', 'error'); setSubmitLoading(false); return; }
           if (!teamId) { setFooterStatus('Please select a team.', 'error'); setSubmitLoading(false); return; }
 
-          // Route to the team's triage queue automatically when available
-          const stateId = teams.find(t => t.id === teamId)?.triageStateId || null;
           const projectId = shadow.getElementById('issue-project').value || null;
           const assigneeId = shadow.getElementById('issue-assignee').value || null;
+
+          // Workflow: Triage routes to the team's triage state; Skip Triage
+          // omits stateId so Linear uses the team's default (Backlog/etc).
+          const workflowChoice = shadow.querySelector('#workflow-control .seg-active')?.dataset.value || 'triage';
+          const stateId = workflowChoice === 'triage'
+            ? (teams.find(t => t.id === teamId)?.triageStateId || null)
+            : null;
 
           const result = await chrome.runtime.sendMessage({
             type: 'UPLOAD_AND_CREATE_ISSUE',
@@ -979,7 +1098,7 @@ if (window.__linearScreenshotLoaded) {
           if (result.error) throw new Error(result.error);
 
           const issue = result.data?.data?.issueCreate?.issue;
-          const where = stateId ? ' in Triage' : '';
+          const where = workflowChoice === 'triage' && stateId ? ' in Triage' : '';
           showSuccess(issue?.url, issue ? `${issue.identifier}: ${issue.title}${where}` : `Issue created${where}`, submitAnother);
 
         } else {

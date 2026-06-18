@@ -362,6 +362,7 @@ function buildDescription(assetUrl, diagnostics) {
 
   if (diagnostics) {
     const rows = [
+      ['Page', diagnostics.page],
       ['URL', diagnostics.url],
       ['Browser', diagnostics.browser],
       ['OS', diagnostics.os],

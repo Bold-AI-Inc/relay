@@ -82,7 +82,13 @@ async function init() {
       } else {
         const userNodes = userRes.data?.data?.users?.nodes || [];
         loadedUsers = userNodes
-          .map(u => ({ id: u.id, name: u.displayName || u.name }))
+          // Preserve both: `name` is the full name shown in the dropdown,
+          // `handle` is Linear's unique displayName shown on hover (e.g. @paul.i).
+          .map(u => ({
+            id: u.id,
+            name: u.name || u.displayName,
+            handle: u.displayName || u.name
+          }))
           .filter(u => u.name)
           .sort((a, b) => a.name.localeCompare(b.name));
         console.debug('[Linear Screenshot] fetched', loadedUsers.length, 'users');
