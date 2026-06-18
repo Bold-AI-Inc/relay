@@ -450,21 +450,22 @@ if (window.__linearScreenshotLoaded) {
           display: inline-flex;
           background: #f3f4f6;
           border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          padding: 3px;
-          gap: 2px;
+          border-radius: 6px;
+          padding: 2px;
+          gap: 1px;
         }
         .seg-btn {
           border: none;
           background: transparent;
-          padding: 6px 14px;
-          font-size: 12px;
+          padding: 3px 9px;
+          font-size: 11px;
           font-weight: 500;
           color: #6b7280;
           cursor: pointer;
-          border-radius: 6px;
+          border-radius: 4px;
           font-family: inherit;
           transition: color 0.12s;
+          line-height: 1.4;
         }
         .seg-btn.seg-active {
           background: #fff;
