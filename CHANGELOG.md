@@ -5,6 +5,22 @@ All notable changes to **Linear Screenshot** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the version numbers follow [Semantic Versioning](https://semver.org/).
 
+## Open source release — 2026-09-28
+
+- **Project open-sourced under the [Apache License 2.0](./LICENSE).**
+  [Bold AI](https://experiencebold.ai) is the copyright holder and
+  Paul Ibrahim is the founding contributor. New governance files:
+  `LICENSE`, `NOTICE`, `AUTHORS`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`
+  (Contributor Covenant 2.1), `SECURITY.md`, and GitHub issue/PR
+  templates. Repository visibility flipped to public. No code changes
+  in this entry — only project governance and licensing.
+
+## [1.5.1] — 2026-06-11
+
+### Changed
+- Tightened styling on the Triage / Skip Triage segmented control so it
+  sits more proportionally next to the input fields.
+
 ## [1.5.0] — 2026-06-11
 
 ### Added
@@ -133,6 +149,7 @@ Initial release. Submitted to the Chrome Web Store.
   (`*.amazonaws.com`, `*.googleapis.com`, `*.linearassets.com`). No analytics,
   no third-party servers, no remote code.
 
+[1.5.1]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.5.1
 [1.5.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.5.0
 [1.4.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.4.0
 [1.3.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.3.0

@@ -1,19 +1,27 @@
 # Linear Screenshot
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-listing-5B5BD6)](https://chrome.google.com/webstore/detail/lapenaefiefajnngaakldaefkhilbdap)
+
 A Chrome extension (Manifest V3) that captures a user-selected area of any web
 page and sends it to Linear as a new issue or a comment on an existing one — in
 two clicks.
 
-- 📸 Drag-to-select capture, no full-page noise.
-- 🆕 Create new issues (with team, project, priority, auto-Triage routing) or
+Built and maintained by [Bold AI](https://experiencebold.ai) and released
+under the [Apache License 2.0](./LICENSE). Contributions welcome —
+see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+- 📸 Drag-to-select capture, or send the whole visible tab.
+- 🆕 Create new issues (with team, project, priority, assignee, Triage routing) or
   💬 attach the screenshot to an existing issue as a comment.
-- 🧭 Bug context attached automatically: page URL, browser, OS, viewport, DPR,
+- 🧭 Bug context attached automatically: page title + URL, browser, OS, viewport, DPR,
   language, timestamp.
 - 🔐 Sign in with Linear (OAuth 2.0 + PKCE), or use a personal API key.
 - 📡 Zero third parties — talks only to Linear.
 
 **Privacy policy:** <https://gist.github.com/pibrah/e1c79df093228b1f880501cd86d132c0>
 **Changelog:** [`CHANGELOG.md`](./CHANGELOG.md)
+**Contributing:** [`CONTRIBUTING.md`](./CONTRIBUTING.md) · **Code of Conduct:** [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) · **Security:** [`SECURITY.md`](./SECURITY.md)
 
 ---
 
@@ -30,6 +38,16 @@ icons/                 16/32/48/128 toolbar + extension icons (and 512 for the s
 store/                 Web Store marketing assets (screenshots, promo tiles)
 build.sh               Builds the upload zip (linear-screenshot-extension.zip)
 PUBLISHING.md          End-to-end publishing guide (CWS + Linear OAuth setup)
+
+# Open source project files
+LICENSE                Apache License 2.0 (canonical text)
+NOTICE                 Copyright + attribution required by Apache-2.0
+AUTHORS                List of contributors
+CHANGELOG.md           Version history (Keep a Changelog format)
+CONTRIBUTING.md        How to contribute — dev setup, PRs, commit style
+CODE_OF_CONDUCT.md     Contributor Covenant 2.1
+SECURITY.md            Vulnerability reporting policy
+.github/               Issue and PR templates
 ```
 
 ---
@@ -89,4 +107,15 @@ Quick build:
 
 ## License
 
-Source-available, private repository. Not currently open-sourced.
+Copyright 2026 [Bold AI](https://experiencebold.ai).
+
+Licensed under the [Apache License, Version 2.0](./LICENSE) (the "License");
+you may not use this project except in compliance with the License. You may
+obtain a copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an **"AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND**, either express or implied. See the
+[LICENSE](./LICENSE) and [NOTICE](./NOTICE) files for the full terms.
+
+See [AUTHORS](./AUTHORS) for the list of contributors.

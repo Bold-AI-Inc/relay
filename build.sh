@@ -16,13 +16,21 @@ if grep -q "self.LINEAR_OAUTH_CLIENT_ID = ''" config.js; then
   read -r _
 fi
 
+# LICENSE and NOTICE ship with the extension — Apache-2.0 §4 requires
+# distributing them alongside the binary. AUTHORS is included as attribution.
+# CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, and .github are governance docs
+# that only matter in the repo; the CWS package doesn't need them.
 zip -r "$OUT" . \
   -x ".git/*" \
+  -x ".github/*" \
   -x ".gitignore" \
   -x "*.DS_Store" \
   -x "README.md" \
   -x "PUBLISHING.md" \
   -x "CHANGELOG.md" \
+  -x "CONTRIBUTING.md" \
+  -x "CODE_OF_CONDUCT.md" \
+  -x "SECURITY.md" \
   -x "build.sh" \
   -x "store/*" \
   -x "icons/icon512.png" \
