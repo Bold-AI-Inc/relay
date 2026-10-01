@@ -31,7 +31,7 @@ You need Google Chrome (or any Chromium-based browser) and a Linear account.
 
 1. **Clone the repo**
    ```sh
-   git clone https://github.com/pibrah/relay.git
+   git clone https://github.com/Bold-AI-Inc/relay.git
    cd relay
    ```
 2. **Load the extension** in Chrome
