@@ -22,7 +22,9 @@ see [CONTRIBUTING.md](./CONTRIBUTING.md).
 - 🔐 Sign in with Linear (OAuth 2.0 + PKCE), or use a personal API key.
 - 📡 Zero third parties — talks only to Linear.
 
-**Privacy policy:** <https://gist.github.com/pibrah/e1c79df093228b1f880501cd86d132c0>
+**Privacy policy:** [`PRIVACY.md`](./PRIVACY.md) · also mirrored at
+<https://gist.github.com/pibrah/e1c79df093228b1f880501cd86d132c0> (the URL the
+Chrome Web Store listing points at — kept live for continuity)
 **Changelog:** [`CHANGELOG.md`](./CHANGELOG.md)
 **Contributing:** [`CONTRIBUTING.md`](./CONTRIBUTING.md) · **Code of Conduct:** [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) · **Security:** [`SECURITY.md`](./SECURITY.md)
 

@@ -31,6 +31,7 @@ zip -r "$OUT" . \
   -x "CONTRIBUTING.md" \
   -x "CODE_OF_CONDUCT.md" \
   -x "SECURITY.md" \
+  -x "PRIVACY.md" \
   -x "build.sh" \
   -x "store/*" \
   -x "icons/icon512.png" \
