@@ -1,4 +1,4 @@
-# Relay
+# Relay — Linear Screenshot Tool
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-listing-5B5BD6)](https://chrome.google.com/webstore/detail/lapenaefiefajnngaakldaefkhilbdap)

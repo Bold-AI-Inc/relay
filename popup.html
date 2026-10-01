@@ -36,6 +36,18 @@
       font-size: 13px;
       font-weight: 600;
       color: #111827;
+      line-height: 1.1;
+    }
+    .header-subtitle {
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 400;
+      line-height: 1.1;
+    }
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .body { padding: 14px 16px; }
@@ -132,7 +144,10 @@
         <path d="M5.5 3L6.5 1.5H9.5L10.5 3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    <span class="header-title">Relay</span>
+    <div class="header-text">
+      <span class="header-title">Relay</span>
+      <span class="header-subtitle">Linear Screenshot Tool</span>
+    </div>
   </div>
 
   <div class="body">

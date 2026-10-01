@@ -5,26 +5,40 @@ All notable changes to **Relay** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the version numbers follow [Semantic Versioning](https://semver.org/).
 
-## Renamed to Relay — 2026-10-01
+## [1.6.0] — 2026-10-01
 
-- **Project renamed from "Linear Screenshot" to "Relay".** All in-repo
-  references updated. The Chrome Web Store listing name will update to
-  **Relay** when the next `manifest.json` version is uploaded. The
-  extension's item ID (`lapenaefiefajnngaakldaefkhilbdap`), OAuth client ID,
-  redirect URL, and privacy policy URL are unchanged — this is a rename,
-  not a reset. GitHub repository renamed from
-  `pibrah/linear-screenshot-extension` to `Bold-AI-Inc/relay` (GitHub serves
-  automatic redirects for the old URL).
+A product-identity release bundling the rename, the open-source cut-over,
+and the move to the Bold AI organization. No functional code changes —
+every improvement from 1.0.1 through 1.5.1 is already in this build.
 
-## Open source release — 2026-09-28
+### Changed
+- **Project renamed from "Linear Screenshot" to "Relay".** The published
+  Chrome Web Store display name is now **"Relay - Linear Screenshot Tool"**
+  (the dual name keeps the old product discoverable in search while
+  leading with the Relay brand). The extension's item ID
+  (`lapenaefiefajnngaakldaefkhilbdap`), OAuth client ID, redirect URL,
+  and privacy policy URL are unchanged — this is a rename, not a reset.
+- `manifest.json` `description` rewritten to the Relay voice: "Relay a
+  snapshot of any page to Linear as a new issue or a comment on an
+  existing one."
 
-- **Project open-sourced under the [Apache License 2.0](./LICENSE).**
+### Added
+- **Open-sourced under the [Apache License 2.0](./LICENSE).**
   [Bold AI](https://experiencebold.ai) is the copyright holder and
-  Paul Ibrahim is the founding contributor. New governance files:
+  Paul Ibrahim is the founding contributor. Governance files added:
   `LICENSE`, `NOTICE`, `AUTHORS`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`
-  (Contributor Covenant 2.1), `SECURITY.md`, and GitHub issue/PR
-  templates. Repository visibility flipped to public. No code changes
-  in this entry — only project governance and licensing.
+  (Contributor Covenant 2.1), `SECURITY.md`, and GitHub issue + PR
+  templates. Repository visibility is public.
+- **`PRIVACY.md` mirrored into the repo** so the authoritative privacy
+  policy lives alongside the code under version control. The existing
+  gist URL stays live and in sync (that URL is what the Chrome Web Store
+  listing currently points at).
+
+### Repository
+- **Moved to the Bold AI organization.** Canonical URL:
+  <https://github.com/Bold-AI-Inc/relay>. GitHub serves automatic
+  redirects from `pibrah/linear-screenshot-extension` and `pibrah/relay`
+  for existing clones, release links, and shared links.
 
 ## [1.5.1] — 2026-06-11
 
@@ -160,6 +174,7 @@ Initial release. Submitted to the Chrome Web Store.
   (`*.amazonaws.com`, `*.googleapis.com`, `*.linearassets.com`). No analytics,
   no third-party servers, no remote code.
 
+[1.6.0]: https://github.com/Bold-AI-Inc/relay/releases/tag/v1.6.0
 [1.5.1]: https://github.com/Bold-AI-Inc/relay/releases/tag/v1.5.1
 [1.5.0]: https://github.com/Bold-AI-Inc/relay/releases/tag/v1.5.0
 [1.4.0]: https://github.com/Bold-AI-Inc/relay/releases/tag/v1.4.0
