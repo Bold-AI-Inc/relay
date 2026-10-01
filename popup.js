@@ -49,10 +49,10 @@ async function init() {
         }`
       });
       if (projRes?.error) {
-        console.warn('[Linear Screenshot] projects query failed:', projRes.error);
+        console.warn('[Relay] projects query failed:', projRes.error);
       } else {
         const projNodes = projRes.data?.data?.projects?.nodes || [];
-        console.debug('[Linear Screenshot] fetched', projNodes.length, 'projects');
+        console.debug('[Relay] fetched', projNodes.length, 'projects');
         const byTeam = {};
         for (const p of projNodes) {
           if (p.state === 'completed' || p.state === 'canceled') continue;
@@ -63,7 +63,7 @@ async function init() {
         loadedTeams.forEach(t => { t.projects = byTeam[t.id] || []; });
       }
     } catch (e) {
-      console.warn('[Linear Screenshot] projects query threw:', e);
+      console.warn('[Relay] projects query threw:', e);
     }
 
     // Fetch workspace users for the Assignee dropdown. Same defensive pattern
@@ -78,7 +78,7 @@ async function init() {
         }`
       });
       if (userRes?.error) {
-        console.warn('[Linear Screenshot] users query failed:', userRes.error);
+        console.warn('[Relay] users query failed:', userRes.error);
       } else {
         const userNodes = userRes.data?.data?.users?.nodes || [];
         loadedUsers = userNodes
@@ -91,10 +91,10 @@ async function init() {
           }))
           .filter(u => u.name)
           .sort((a, b) => a.name.localeCompare(b.name));
-        console.debug('[Linear Screenshot] fetched', loadedUsers.length, 'users');
+        console.debug('[Relay] fetched', loadedUsers.length, 'users');
       }
     } catch (e) {
-      console.warn('[Linear Screenshot] users query threw:', e);
+      console.warn('[Relay] users query threw:', e);
     }
 
     setStatus(loadedTeams.length ? '' : 'No teams found');

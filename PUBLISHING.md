@@ -1,4 +1,4 @@
-# Publishing “Linear Screenshot” to the Chrome Web Store
+# Publishing “Relay” to the Chrome Web Store
 
 This walks you through everything from zero: setting up Linear OAuth, getting the
 extension’s ID, and publishing. Follow the steps in order — a few of them depend on
@@ -53,7 +53,7 @@ Store item now (you don’t have to publish it yet).
 
 1. Go to <https://linear.app/settings/api/applications/new>
    (Linear → Settings → API → **OAuth applications** → **Create**).
-2. Fill in name (“Linear Screenshot”), icon, description.
+2. Fill in name (“Relay”), icon, description.
 3. **Redirect URIs:** add exactly the URL shown on the extension’s **Settings** page
    (“OAuth setup (for publishers)” → the read‑only **redirect URL** box). It looks like:
    ```

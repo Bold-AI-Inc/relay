@@ -800,7 +800,7 @@ if (window.__linearScreenshotLoaded) {
           variables: { id: projectId }
         });
         if (res?.error) {
-          console.warn('[Linear Screenshot] project members query failed:', res.error);
+          console.warn('[Relay] project members query failed:', res.error);
           renderAssignees(null);
           return;
         }
@@ -809,7 +809,7 @@ if (window.__linearScreenshotLoaded) {
         );
         renderAssignees(memberIds);
       } catch (e) {
-        console.warn('[Linear Screenshot] project members query threw:', e);
+        console.warn('[Relay] project members query threw:', e);
         renderAssignees(null);
       }
     }

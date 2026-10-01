@@ -1,11 +1,14 @@
-# Linear Screenshot
+# Relay
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-listing-5B5BD6)](https://chrome.google.com/webstore/detail/lapenaefiefajnngaakldaefkhilbdap)
 
-A Chrome extension (Manifest V3) that captures a user-selected area of any web
-page and sends it to Linear as a new issue or a comment on an existing one — in
-two clicks.
+**Relay a snapshot of any page to Linear — as a new issue, or as a comment on an existing one — in two clicks.**
+
+A Chrome extension (Manifest V3) that lives in your toolbar: drag-select a
+region (or capture the whole visible tab), fill a quick form, send. The
+screenshot lands in Linear with the page title, URL, browser, OS, viewport
+and other diagnostics attached automatically.
 
 Built and maintained by [Bold AI](https://experiencebold.ai) and released
 under the [Apache License 2.0](./LICENSE). Contributions welcome —
@@ -36,7 +39,7 @@ popup.html / popup.js  Toolbar popup (capture button, auth gate)
 options.html / options.js   Settings page (Connect / Disconnect, API key fallback)
 icons/                 16/32/48/128 toolbar + extension icons (and 512 for the store)
 store/                 Web Store marketing assets (screenshots, promo tiles)
-build.sh               Builds the upload zip (linear-screenshot-extension.zip)
+build.sh               Builds the upload zip (relay.zip)
 PUBLISHING.md          End-to-end publishing guide (CWS + Linear OAuth setup)
 
 # Open source project files
@@ -100,7 +103,7 @@ OAuth app, pinning the manifest `key`, building the zip, and submission.
 Quick build:
 
 ```sh
-./build.sh        # writes linear-screenshot-extension.zip
+./build.sh        # writes relay.zip
 ```
 
 ---

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Builds the Chrome Web Store upload package.
-# Produces ./linear-screenshot-extension.zip with only the files that ship.
+# Produces ./relay.zip with only the files that ship.
 
 set -euo pipefail
 cd "$(dirname "$0")"
 
-OUT="linear-screenshot-extension.zip"
+OUT="relay.zip"
 rm -f "$OUT"
 
 # Refuse to build if the OAuth client_id placeholder still looks empty AND no

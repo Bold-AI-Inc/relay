@@ -1,9 +1,20 @@
 # Changelog
 
-All notable changes to **Linear Screenshot** are documented here.
+All notable changes to **Relay** are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the version numbers follow [Semantic Versioning](https://semver.org/).
+
+## Renamed to Relay — 2026-10-01
+
+- **Project renamed from "Linear Screenshot" to "Relay".** All in-repo
+  references updated. The Chrome Web Store listing name will update to
+  **Relay** when the next `manifest.json` version is uploaded. The
+  extension's item ID (`lapenaefiefajnngaakldaefkhilbdap`), OAuth client ID,
+  redirect URL, and privacy policy URL are unchanged — this is a rename,
+  not a reset. GitHub repository renamed from
+  `pibrah/linear-screenshot-extension` to `pibrah/relay` (GitHub serves
+  automatic redirects for the old URL).
 
 ## Open source release — 2026-09-28
 
@@ -149,13 +160,13 @@ Initial release. Submitted to the Chrome Web Store.
   (`*.amazonaws.com`, `*.googleapis.com`, `*.linearassets.com`). No analytics,
   no third-party servers, no remote code.
 
-[1.5.1]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.5.1
-[1.5.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.5.0
-[1.4.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.4.0
-[1.3.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.3.0
-[1.2.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.2.0
-[1.1.1]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.1.1
-[1.1.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.1.0
-[1.0.2]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.0.2
-[1.0.1]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.0.1
-[1.0.0]: https://github.com/pibrah/linear-screenshot-extension/releases/tag/v1.0.0
+[1.5.1]: https://github.com/pibrah/relay/releases/tag/v1.5.1
+[1.5.0]: https://github.com/pibrah/relay/releases/tag/v1.5.0
+[1.4.0]: https://github.com/pibrah/relay/releases/tag/v1.4.0
+[1.3.0]: https://github.com/pibrah/relay/releases/tag/v1.3.0
+[1.2.0]: https://github.com/pibrah/relay/releases/tag/v1.2.0
+[1.1.1]: https://github.com/pibrah/relay/releases/tag/v1.1.1
+[1.1.0]: https://github.com/pibrah/relay/releases/tag/v1.1.0
+[1.0.2]: https://github.com/pibrah/relay/releases/tag/v1.0.2
+[1.0.1]: https://github.com/pibrah/relay/releases/tag/v1.0.1
+[1.0.0]: https://github.com/pibrah/relay/releases/tag/v1.0.0

@@ -1,4 +1,4 @@
-# Contributing to Linear Screenshot
+# Contributing to Relay
 
 Thank you for considering a contribution. This project is maintained by
 [Bold AI](https://experiencebold.ai) and released under the
@@ -31,8 +31,8 @@ You need Google Chrome (or any Chromium-based browser) and a Linear account.
 
 1. **Clone the repo**
    ```sh
-   git clone https://github.com/pibrah/linear-screenshot-extension.git
-   cd linear-screenshot-extension
+   git clone https://github.com/pibrah/relay.git
+   cd relay
    ```
 2. **Load the extension** in Chrome
    - Open `chrome://extensions`

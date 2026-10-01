@@ -1,6 +1,6 @@
 # Security Policy
 
-Thanks for helping keep Linear Screenshot and its users safe.
+Thanks for helping keep Relay and its users safe.
 
 ## Supported versions
 

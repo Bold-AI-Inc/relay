@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Linear Screenshot",
+  "name": "Relay",
   "version": "1.5.1",
-  "description": "Capture any area of a webpage and send it to Linear as a new issue or attachment",
+  "description": "Relay a snapshot of any page to Linear as a new issue or a comment on an existing one.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3uwqO7FIJn9Blsogst/dGNagZ7j4+bivbbAX2rTbngo9GooQI6GNsmJ6Kct7IGBAp/7GPLPpwKbz39cieCjcDPlzzBZIXOdN42HGzXY5mRyiXK2CsHX9W1PrtKYqGFQkD9puqhDikdmCJFbkk1mZjjmH9Uts7SXt6GlTWlMgf4fywWqVhfMJ/XbDRZJT1l2/1Qe8le0zh2GbseNGHgtTB6e+GqUio27YP7yPJinZngBh/rcITnWMU7+L+N1lDmFIQ8wCPVZZ/eWMaAmHRw7ozvuCwjcRIfE5gpZV8qaR0K4VvPDodbz0HxVXOcMAENvGGOBlLfE4Xbli0XOWgBaxOQIDAQAB",
   "permissions": [
     "activeTab",
@@ -22,7 +22,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Linear Screenshot",
+    "default_title": "Relay",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
